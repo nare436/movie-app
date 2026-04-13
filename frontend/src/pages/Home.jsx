@@ -1,81 +1,72 @@
 import React from 'react'
-import { useState } from 'react'
-import MovieCard from '../comopnents/MovieCard'
+import { useState, useEffect } from 'react'
+import MovieCard from '../components/MovieCard'
+
 function Home() {
-    const movies =
-        [
-            { id: 1, title: 'Farzi', release: '2022', url: '3.jpg' },
-            { id: 2, title: 'Dhoom', release: '2004', url: '3.jpg' },
-            { id: 3, title: 'Baaz', release: '2003', url: '3.jpg' },
-            { id: 4, title: 'Asur', release: '2020', url: '3.jpg' },
-            { id: 5, title: 'Sholay', release: '1975', url: '3.jpg' },
-            { id: 6, title: 'Lagaan', release: '2001', url: '3.jpg' },
-            { id: 7, title: 'Pathaan', release: '2023', url: '3.jpg' },
-            { id: 8, title: 'Krrish', release: '2006', url: '3.jpg' },
-            { id: 9, title: 'Gadar 2', release: '2023', url: '3.jpg' },
-            { id: 10, title: 'Dilwale Dulhania Le Jayenge', release: '1995', url: '3.jpg' },
-            { id: 11, title: '3 Idiots', release: '2009', url: '3.jpg' },
-            { id: 12, title: 'PK', release: '2014', url: '3.jpg' },
-            { id: 13, title: 'War', release: '2019', url: '3.jpg' },
-            { id: 14, title: 'Dangal', release: '2016', url: '3.jpg' },
-            { id: 15, title: 'Chakde! India', release: '2007', url: '3.jpg' },
-            { id: 16, title: 'Kabir Singh', release: '2019', url: '3.jpg' },
-            { id: 17, title: 'Bajrangi Bhaijaan', release: '2015', url: '3.jpg' },
-            { id: 18, title: 'Tiger Zinda Hai', release: '2017', url: '3.jpg' },
-            { id: 19, title: 'Sultan', release: '2016', url: '3.jpg' },
-            { id: 20, title: 'Kick', release: '2014', url: '3.jpg' },
-            { id: 21, title: 'Barfi!', release: '2012', url: '3.jpg' },
-            { id: 22, title: 'Sanju', release: '2018', url: '3.jpg' },
-            { id: 23, title: 'Zindagi Na Milegi Dobara', release: '2011', url: '3.jpg' },
-            { id: 24, title: 'Don 2', release: '2011', url: '3.jpg' },
-            { id: 25, title: 'Ra.One', release: '2011', url: '3.jpg' },
-            { id: 26, title: 'Brahmastra', release: '2022', url: '3.jpg' },
-            { id: 27, title: 'Jawan', release: '2023', url: '3.jpg' },
-            { id: 28, title: 'Kal Ho Naa Ho', release: '2003', url: '3.jpg' },
-            { id: 29, title: 'Kabhi Khushi Kabhie Gham', release: '2001', url: '3.jpg' },
-            { id: 30, title: 'Mohabbatein', release: '2000', url: '3.jpg' },
-            { id: 31, title: 'Veer-Zaara', release: '2004', url: '3.jpg' },
-            { id: 32, title: 'Om Shanti Om', release: '2007', url: '3.jpg' },
-            { id: 33, title: 'Rab Ne Bana Di Jodi', release: '2008', url: '3.jpg' },
-            { id: 34, title: 'Fan', release: '2016', url: '3.jpg' },
-            { id: 35, title: 'Happy New Year', release: '2014', url: '3.jpg' },
-            { id: 36, title: 'Don', release: '2006', url: '3.jpg' },
-            { id: 37, title: 'Zero', release: '2018', url: '3.jpg' },
-            { id: 38, title: 'Dil Chahta Hai', release: '2001', url: '3.jpg' },
-            { id: 39, title: 'Rock On!!', release: '2008', url: '3.jpg' },
-            { id: 40, title: 'Kai Po Che!', release: '2013', url: '3.jpg' },
-            { id: 41, title: 'MS Dhoni: The Untold Story', release: '2016', url: '3.jpg' },
-            { id: 42, title: 'Singham', release: '2011', url: '3.jpg' },
-            { id: 43, title: 'Drishyam', release: '2015', url: '3.jpg' },
-            { id: 44, title: 'Bhool Bhulaiyaa', release: '2007', url: '3.jpg' },
-            { id: 45, title: 'Andhadhun', release: '2018', url: '3.jpg' },
-            { id: 46, title: 'Article 15', release: '2019', url: '3.jpg' },
-            { id: 47, title: 'Badhaai Ho', release: '2018', url: '3.jpg' },
-            { id: 48, title: 'Stree', release: '2018', url: '3.jpg' },
-            { id: 49, title: 'Bhediya', release: '2022', url: '3.jpg' },
-            { id: 50, title: 'Ludo', release: '2020', url: '3.jpg' }
-        ]
+    const [movies, setMovies] = useState([]);
+    const [search, setSearch] = useState("");
+    const [query, setQuery] = useState("avengers"); // Default query
 
+    useEffect(() => {
+        const fetchMovies = async () => {
+            if (query.trim() === '') return;
+            try {
+                const response = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=c910a6c7`);
+                const data = await response.json();
+                if (data.Search) {
+                    const fetchedMovies = data.Search.map(m => ({
+                        id: m.imdbID,
+                        title: m.Title,
+                        release: m.Year,
+                        url: m.Poster !== "N/A" ? m.Poster : 'https://via.placeholder.com/300x450?text=No+Poster',
+                        go: `https://www.imdb.com/title/${m.imdbID}/`
+                    }));
+                    setMovies(fetchedMovies);
+                } else {
+                    setMovies([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch movies:", error);
+                setMovies([]);
+            }
+        };
+        fetchMovies();
+    }, [query]);
 
-    const [search, setSearch] = useState("")
-
-    const SearchFun = (e) => {
+    const handleSearch = (e) => {
         e.preventDefault();
-        alert(search)
-    }
+        setQuery(search);
+    };
+
     return (
-        <>
-            <form onSubmit={SearchFun} className='w-70 h-10 mt-10 mb-10 flex justify-center items-center min-w-screen'>
-                <input type="text" placeholder='Enter the movie name' value={search} onChange={(e) => { setSearch(e.target.value) }} className='border-2 rounded-xl p-2 border-black mr-1' />
-                <button>Search</button>
-            </form>
-            <div>
-                {movies.map(movie =>
-                    movie.title.toLocaleLowerCase().startsWith(search) && (<MovieCard movie={movie} key={movie.id} />)
-                )}
+        <div className="flex flex-col items-center min-h-screen pt-10 px-4 pb-20">
+            <div className='w-full max-w-2xl mb-12 flex justify-center sticky top-20 z-10'>
+                <form onSubmit={handleSearch} className="w-full flex shadow-lg rounded-full">
+                    <input 
+                        type="text" 
+                        placeholder='Search for a movie...' 
+                        value={search} 
+                        onChange={(e) => setSearch(e.target.value)} 
+                        className='w-full border border-r-0 border-gray-600 bg-gray-800 text-white rounded-l-full px-6 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-lg' 
+                    />
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-r-full font-bold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Search
+                    </button>
+                </form>
             </div>
-        </>
+            {movies.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full max-w-7xl">
+                    {movies.map(movie =>
+                        <MovieCard movie={movie} key={movie.id} />
+                    )}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center mt-20 text-gray-400">
+                    <p className="text-xl">No movies found matching "{query}"</p>
+                </div>
+            )}
+        </div>
     )
 }
 
-export default Home
+export default Home;
